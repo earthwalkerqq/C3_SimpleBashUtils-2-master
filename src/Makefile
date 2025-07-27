@@ -3,20 +3,25 @@ CFLAGS=-Wall -Werror -Wextra
 
 all: build
 
-s21_cat:
+s21_cat: ./cat/s21_cat.c
+	$(CC) $(CFLAGS) ./cat/s21_cat.c ./cat/output_file.c -o ./cat/s21_cat
 
-s21_grep:
+s21_grep: ./grep/s21_grep.c
+	$(CC) $(CFLAGS) ./grep/s21_grep.c -o ./grep/s21_grep
 
 build: s21_cat s21_grep
 
-style-check:
+style_check:
 	cp ../materials/linters/.clang-format ./.clang-format
-	clang-format -i ./cat/*.c ./cat/*.h ./grep/*.c ./grep/*.h
+	clang-format -i cat/*.c cat/*.h
+	clang-format grep/*.c
 	rm -rf ./.clang-format
 
 clean:
 	rm -rf ./a.out
 	rm -rf ./*.o
+	rm -rf ./cat/a.out
+	rm -rf ./grep/a.out
 	rm -rf ./cat/s21_cat
 	rm -rf ./grep/s21_grep
 
