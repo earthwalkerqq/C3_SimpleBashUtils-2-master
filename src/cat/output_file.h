@@ -6,5 +6,9 @@
 
 int output_file(FILE *file, const char *option);
 void output_nonblank(FILE *file);
+void output_number(FILE *file);
+void output_end_symbol(FILE *file);
+void output_squeeze_blank(FILE *file);
+void output_tab(FILE *file);
 
 #endif
