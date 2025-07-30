@@ -1,4 +1,4 @@
-#include "grep_with_flag.h"
+#include "grep_flag.h"
 
 int main(int argc, char *argv[]) {
     if (argc == 1) {

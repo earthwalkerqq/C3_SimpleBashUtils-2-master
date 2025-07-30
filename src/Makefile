@@ -1,5 +1,8 @@
 CC=gcc
 CFLAGS=-Wall -Werror -Wextra
+FILES=./grep/grep_count.c ./grep/grep_file.c ./grep/grep_ignore.c \
+	./grep/grep_inverse.c ./grep/grep_num.c ./grep/grep_template.c \
+	./grep/grep_without_error.c ./grep/grep_flag.c ./common/source.c
 
 all: build
 
@@ -7,7 +10,7 @@ s21_cat: ./cat/s21_cat.c
 	$(CC) $(CFLAGS) ./cat/s21_cat.c ./cat/output_file.c -o ./cat/s21_cat
 
 s21_grep: ./grep/s21_grep.c
-	$(CC) $(CFLAGS) ./grep/s21_grep.c ./grep/grep_with_flag.c -o ./grep/s21_grep
+	$(CC) $(CFLAGS) ./grep/s21_grep.c $(FILES) -o ./grep/s21_grep
 
 build: s21_cat s21_grep
 
