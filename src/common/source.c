@@ -41,6 +41,12 @@ char *print_grep_string(char *string, const char *pattern) {
     return string + i + s21_strlen(pattern);
 }
 
+char *print_match_string(char *string, const char *pattern) {
+    char *start = s21_strstr(string, pattern);
+    printf("\033[31m%s\033[0m\n", pattern);
+    return start + s21_strlen(pattern);
+}
+
 void destroy_char_arr(char **arr, int len) {
     for (int i = 0; i < len; i++) {
         free(arr[i]);

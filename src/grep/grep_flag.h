@@ -5,6 +5,7 @@
 #include "grep_file.h"
 #include "grep_ignore.h"
 #include "grep_inverse.h"
+#include "grep_match.h"
 #include "grep_num.h"
 #include "grep_template.h"
 #include "grep_without_error.h"

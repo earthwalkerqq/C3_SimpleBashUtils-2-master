@@ -2,7 +2,8 @@ CC=gcc
 CFLAGS=-Wall -Werror -Wextra
 FILES=./grep/grep_count.c ./grep/grep_file.c ./grep/grep_ignore.c \
 	./grep/grep_inverse.c ./grep/grep_num.c ./grep/grep_template.c \
-	./grep/grep_without_error.c ./grep/grep_flag.c ./common/source.c
+	./grep/grep_without_error.c ./grep/grep_flag.c ./common/source.c \
+	./grep/grep_match.c
 
 all: build
 

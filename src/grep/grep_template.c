@@ -2,11 +2,12 @@
 
 int grep_with_template(char *pattern, char *filename) {
     int error = EXIT_SUCCESS;
-    error = (filename == NULL) ? grep_from_input(pattern, 0, 0) : grep_from_file(pattern, filename, 0, 0, 0);
+    error = (filename == NULL) ? grep_from_input(pattern, 0, 0, 0)
+                               : grep_from_file(pattern, filename, 0, 0, 0, 0);
     return error;
 }
 
-int grep_from_input(char *pattern, char inverse_flag, char num_flag) {
+int grep_from_input(char *pattern, char inverse_flag, char num_flag, char match_flag) {
     int error = EXIT_SUCCESS;
     regex_t regex;
     int reti;
@@ -41,9 +42,12 @@ int grep_from_input(char *pattern, char inverse_flag, char num_flag) {
                 char *str_tmp = NULL;
                 for (str_tmp = string; !regexec(&regex, str_tmp, 0, NULL, 0); flag_first = 0, has_iter = 1) {
                     if (num_flag && flag_first) printf("%d:", count_num);
-                    str_tmp = print_grep_string(str_tmp, pattern);
+                    str_tmp = (!match_flag) ? print_grep_string(str_tmp, pattern)
+                                            : print_match_string(str_tmp, pattern);
                 }
-                if (has_iter) printf("%s\n", str_tmp);
+                if (has_iter) {
+                    (!match_flag) ? printf("%s\n", str_tmp) : putchar('\n');
+                }
             }
             free(string);
         }
@@ -52,7 +56,8 @@ int grep_from_input(char *pattern, char inverse_flag, char num_flag) {
     return error;
 }
 
-int grep_from_file(char *pattern, char *filename, char inverse_flag, char error_flag, char num_flag) {
+int grep_from_file(char *pattern, char *filename, char inverse_flag, char error_flag, char num_flag,
+                   char match_flag) {
     int error = EXIT_SUCCESS;
     FILE *file = NULL;
     if ((file = fopen(filename, "r")) == NULL) {
@@ -103,9 +108,10 @@ int grep_from_file(char *pattern, char *filename, char inverse_flag, char error_
             for (str_tmp = line; !reti;
                  reti = regexec(&regex, str_tmp, 0, NULL, 0), flag_first = 0, has_iter = 1) {
                 if (num_flag && flag_first) printf("%d:", count_num);
-                str_tmp = print_grep_string(str_tmp, pattern);
+                str_tmp = (!match_flag) ? print_grep_string(str_tmp, pattern)
+                                        : print_match_string(str_tmp, pattern);
             }
-            if (has_iter) printf("%s\n", str_tmp);
+            if (has_iter && !match_flag) printf("%s\n", str_tmp);
         }
         free(line);
     }

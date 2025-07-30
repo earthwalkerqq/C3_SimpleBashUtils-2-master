@@ -12,9 +12,6 @@ int grep_with_file_pattern_input(char *file_pattern) {
     char **patterns = NULL;
     int len;
     patterns = read_pattern_from_file(file_pattern, &len, &error);
-    for (int i = 0; i < len; i++) {
-        printf("patterns[i] = %s\n", patterns[i]);
-    }
     if (!error) {
         error = grep_input_many_patterns(patterns, len);
     }
@@ -26,7 +23,7 @@ int grep_with_file_pattern_input(char *file_pattern) {
 int grep_with_file_pattern_file(char *file_pattern, char *filename) {
     int error = EXIT_SUCCESS;
     char **patterns = NULL;
-    int len;
+    int len = 0;
     patterns = read_pattern_from_file(file_pattern, &len, &error);
     if (!error) {
         error = grep_file_many_patterns(filename, patterns, len);
@@ -36,7 +33,7 @@ int grep_with_file_pattern_file(char *file_pattern, char *filename) {
     return error;
 }
 
-int grep_input_many_patterns(char **pattrens, int len) {
+int grep_input_many_patterns(char **patterns, int len) {
     int error = EXIT_SUCCESS;
     int size = SIZE_STRING;
     char *string = (char *)malloc(size * sizeof(char));
@@ -55,14 +52,14 @@ int grep_input_many_patterns(char **pattrens, int len) {
         }
         if (error) return error;
         string[i] = '\0';
+        char flag = 0;
+        for (int i = 0; i < len && !flag; i++) flag = find_pattern(string, patterns[i]);
+        free(string);
     }
-    char flag = 0;
-    for (int i = 0; i < len && !flag; i++, flag = find_pattern(string, pattrens[i]));
-    free(string);
     return error;
 }
 
-int grep_file_many_patterns(char *filename, char **pattrens, int len) {
+int grep_file_many_patterns(char *filename, char **patterns, int len) {
     int error = EXIT_SUCCESS;
     FILE *file = NULL;
     if ((file = fopen(filename, "r")) == NULL) return EXIT_FAILURE;
@@ -90,7 +87,7 @@ int grep_file_many_patterns(char *filename, char **pattrens, int len) {
         if (!error) {
             line[i] = '\0';
             char flag = 0;
-            for (int j = 0; j < len && !flag; j++, flag = find_pattern(line, pattrens[j]));
+            for (int j = 0; j < len && !flag; j++) flag = find_pattern(line, patterns[j]);
         }
         free(line);
     }
@@ -100,16 +97,20 @@ int grep_file_many_patterns(char *filename, char **pattrens, int len) {
 
 int find_pattern(char *string, char *pattern) {
     int res = EXIT_FAILURE;
+    if (string == NULL || pattern == NULL) return res;
     regex_t regex;
     int reti;
     reti = regcomp(&regex, pattern, REG_EXTENDED);
     if (reti) {
         perror("Failed to compile regular expression");
-        return res;
-    }
-    if (!regexec(&regex, string, 0, NULL, 0)) {
+    } else {
+        char *str_tmp;
+        char has_iter = 0;
+        for (str_tmp = string; !regexec(&regex, str_tmp, 0, NULL, 0); has_iter = 1) {
+            str_tmp = print_grep_string(str_tmp, pattern);
+        }
+        if (has_iter) printf("%s\n", str_tmp);
         res = EXIT_SUCCESS;
-        printf("%s\n", string);
     }
     regfree(&regex);
     return res;
@@ -162,15 +163,16 @@ char **read_pattern_from_file(char *filename, int *len, int *error) {
             line[j] = ch;
         }
         line[j] = '\0';
-        patterns_arr[*len] = line;
+        if (j > 0) {
+            patterns_arr[*len] = line;
+        } else {
+            free(line);
+            (*len)--;
+        }
         if (ch == EOF) {
             flag_eof = 1;
-            break;
         }
     }
     fclose(file);
-    for (int i = 0; i < *len; i++) {
-        printf("%s\n", patterns_arr[i]);
-    }
     return patterns_arr;
 }
