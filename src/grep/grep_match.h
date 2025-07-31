@@ -3,6 +3,6 @@
 
 #include "../common/source.h"
 
-int match_string(char *pattern, char *filename);
+int match_string(char *pattern, char *filename, char most_arg_flag);
 
 #endif

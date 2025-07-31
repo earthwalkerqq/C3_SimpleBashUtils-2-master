@@ -1,8 +1,14 @@
 #include "grep_count.h"
 
-int grep_count_line(char *pattern, char *filename) {
+int grep_count_line(char *pattern, char *filename, char most_arg_flag) {
     int error = EXIT_SUCCESS;
-    error = (filename == NULL) ? grep_count_from_input(pattern) : grep_count_from_file(pattern, filename);
+    if (filename == NULL) {
+        error = grep_count_from_input(pattern);
+    } else if (most_arg_flag) {
+        error = grep_count_from_file(pattern, filename, 0, 0, 0);
+    } else {
+        error = grep_count_from_file(pattern, filename, 0, 0, -1);
+    }
     return error;
 }
 
@@ -43,10 +49,11 @@ int grep_count_from_input(char *pattern) {
     return error;
 }
 
-int grep_count_from_file(char *pattern, char *filename) {
+int grep_count_from_file(char *pattern, char *filename, char inverse_flag, char error_flag, char hide_flag) {
     int error = EXIT_SUCCESS;
     FILE *file = NULL;
     if ((file = fopen(filename, "r")) == NULL) {
+        if (error_flag) return EXIT_FAILURE;
         perror("CAN'T OPEN FILE");
         return EXIT_FAILURE;
     }
@@ -79,10 +86,14 @@ int grep_count_from_file(char *pattern, char *filename) {
             line[i] = ch;
         }
         line[i] = '\0';
-        if (!regexec(&regex, line, 0, NULL, 0)) count_res++;
+        reti = regexec(&regex, line, 0, NULL, 0);
+        if (inverse_flag && reti)
+            count_res++;
+        else if (!inverse_flag && !reti)
+            count_res++;
         free(line);
     }
-    printf("%d\n", count_res);
+    (!hide_flag) ? printf("%s:%d\n", filename, count_res) : printf("%d\n", count_res);
     fclose(file);
     regfree(&regex);
     return error;

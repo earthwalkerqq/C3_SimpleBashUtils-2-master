@@ -2,7 +2,7 @@
 
 int processing(int argc, char *argv[]) {
     int error = EXIT_SUCCESS;
-    int (*func)(char *, char *);
+    int (*func)(char *, char *, char);
     if (argc == 2)
         error = grep_from_input(argv[1], 0, 0, 0);
     else if (argc == 3 && *(argv[1]) == '-') {
@@ -11,25 +11,36 @@ int processing(int argc, char *argv[]) {
             perror("UNCORRECT OPTION");
             error = EXIT_FAILURE;
         } else
-            error = func(argv[2], NULL);
+            error = func(argv[2], NULL, 0);
     } else if (argc == 3)
-        error = grep_from_file(argv[1], argv[2], 0, 0, 0, 0);
+        error = grep_from_file(argv[1], argv[2], 0, 0, 0, 0, 0);
     else if (argc == 4 && *(argv[1]) == '-') {
         func = processing_option(argv[1][1]);
         if (func == NULL) {
             perror("UNCORRECT OPTION");
             error = EXIT_FAILURE;
         } else
-            error = func(argv[2], argv[3]);
+            error = func(argv[2], argv[3], 0);
+    } else if (*(argv[1]) == '-') {
+        func = processing_option(argv[1][1]);
+        if (func == NULL) {
+            perror("UNCORRECT OPTION");
+            error = EXIT_FAILURE;
+        } else {
+            for (int i = 3; i < argc && !error; i++) {
+                error = func(argv[2], argv[i], 1);
+            }
+        }
     } else {
-        perror("MOST OR LESS ARGUMENT GIVEN");
-        error = EXIT_FAILURE;
+        for (int i = 2; i < argc && !error; i++) {
+            error = grep_from_file(argv[1], argv[i], 0, 0, 0, 0, 0);
+        }
     }
     return error;
 }
 
-int (*processing_option(char option))(char *, char *) {
-    int (*res_func)(char *, char *) = NULL;
+int (*processing_option(char option))(char *, char *, char) {
+    int (*res_func)(char *, char *, char) = NULL;
     switch (option) {
         case 'e':
             res_func = grep_with_template;
@@ -54,6 +65,9 @@ int (*processing_option(char option))(char *, char *) {
             break;
         case 'o':
             res_func = match_string;
+            break;
+        case 'h':
+            res_func = grep_hide_filename;
             break;
     }
     return res_func;

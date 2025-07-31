@@ -3,9 +3,9 @@
 
 #include "../common/source.h"
 
-int grep_with_template(char *pattern, char *filename);
+int grep_with_template(char *pattern, char *filename, char most_arg_flag);
 int grep_from_input(char *pattern, char inverse_flag, char num_flag, char match_flag);
 int grep_from_file(char *pattern, char *filename, char inverse_flag, char error_flag, char num_flag,
-                   char match_flag);
+                   char match_flag, char hide_flag);
 
 #endif

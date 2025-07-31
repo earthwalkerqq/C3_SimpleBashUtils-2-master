@@ -1,9 +1,14 @@
 #include "grep_file.h"
 
-int grep_with_file_pattern(char *pattern_file, char *filename) {
+int grep_with_file_pattern(char *pattern_file, char *filename, char most_arg_flag) {
     int error = EXIT_SUCCESS;
-    error = (filename == NULL) ? grep_with_file_pattern_input(pattern_file)
-                               : grep_with_file_pattern_file(pattern_file, filename);
+    if (filename == NULL) {
+        error = grep_with_file_pattern_input(pattern_file);
+    } else if (most_arg_flag) {
+        error = grep_with_file_pattern_file(pattern_file, filename, 0);
+    } else {
+        error = grep_with_file_pattern_file(pattern_file, filename, -1);
+    }
     return error;
 }
 
@@ -13,27 +18,27 @@ int grep_with_file_pattern_input(char *file_pattern) {
     int len;
     patterns = read_pattern_from_file(file_pattern, &len, &error);
     if (!error) {
-        error = grep_input_many_patterns(patterns, len);
+        error = grep_input_many_patterns(patterns, len, 0);
     }
     destroy_char_arr(patterns, len);
     free(patterns);
     return error;
 }
 
-int grep_with_file_pattern_file(char *file_pattern, char *filename) {
+int grep_with_file_pattern_file(char *file_pattern, char *filename, char hide_flag) {
     int error = EXIT_SUCCESS;
     char **patterns = NULL;
     int len = 0;
     patterns = read_pattern_from_file(file_pattern, &len, &error);
     if (!error) {
-        error = grep_file_many_patterns(filename, patterns, len);
+        error = grep_file_many_patterns(filename, patterns, len, 0, 0, 0, hide_flag);
     }
     destroy_char_arr(patterns, len);
     free(patterns);
     return error;
 }
 
-int grep_input_many_patterns(char **patterns, int len) {
+int grep_input_many_patterns(char **patterns, int len, char inverse_flag) {
     int error = EXIT_SUCCESS;
     int size = SIZE_STRING;
     char *string = (char *)malloc(size * sizeof(char));
@@ -53,18 +58,25 @@ int grep_input_many_patterns(char **patterns, int len) {
         if (error) return error;
         string[i] = '\0';
         char flag = 0;
-        for (int i = 0; i < len && !flag; i++) flag = find_pattern(string, patterns[i]);
+        for (int i = 0; i < len && !flag; i++)
+            flag = find_pattern(string, patterns[i], NULL, inverse_flag, 0, -1);
         free(string);
     }
     return error;
 }
 
-int grep_file_many_patterns(char *filename, char **patterns, int len) {
+int grep_file_many_patterns(char *filename, char **patterns, int len, char inverse_flag, char error_flag,
+                            char num_flag, char hide_flag) {
     int error = EXIT_SUCCESS;
     FILE *file = NULL;
-    if ((file = fopen(filename, "r")) == NULL) return EXIT_FAILURE;
+    if ((file = fopen(filename, "r")) == NULL) {
+        if (error_flag) return EXIT_FAILURE;
+        perror("CAN'T OPEN FILE");
+        return EXIT_FAILURE;
+    }
     char flag_eof = 0;
-    for (int size = SIZE_STRING; !flag_eof && !error; size = SIZE_STRING) {
+    int count_num = 1;
+    for (int size = SIZE_STRING; !flag_eof && !error; size = SIZE_STRING, count_num++) {
         char ch;
         char *line = (char *)malloc(size * sizeof(char));
         if (line == NULL) {
@@ -87,7 +99,12 @@ int grep_file_many_patterns(char *filename, char **patterns, int len) {
         if (!error) {
             line[i] = '\0';
             char flag = 0;
-            for (int j = 0; j < len && !flag; j++) flag = find_pattern(line, patterns[j]);
+            for (int j = 0; j < len && !flag; j++) {
+                if (num_flag)
+                    flag = find_pattern(line, patterns[j], filename, inverse_flag, count_num, hide_flag);
+                else
+                    flag = find_pattern(line, patterns[j], filename, inverse_flag, 0, hide_flag);
+            }
         }
         free(line);
     }
@@ -95,7 +112,8 @@ int grep_file_many_patterns(char *filename, char **patterns, int len) {
     return error;
 }
 
-int find_pattern(char *string, char *pattern) {
+int find_pattern(char *string, char *pattern, char *filename, char invers_flag, int count_num,
+                 char hide_flag) {
     int res = EXIT_FAILURE;
     if (string == NULL || pattern == NULL) return res;
     regex_t regex;
@@ -104,13 +122,23 @@ int find_pattern(char *string, char *pattern) {
     if (reti) {
         perror("Failed to compile regular expression");
     } else {
-        char *str_tmp;
-        char has_iter = 0;
-        for (str_tmp = string; !regexec(&regex, str_tmp, 0, NULL, 0); has_iter = 1) {
-            str_tmp = print_grep_string(str_tmp, pattern);
+        reti = regexec(&regex, string, 0, NULL, 0);
+        if (!reti && !invers_flag) {
+            char *str_tmp;
+            char has_iter = 0, first_flag = 1;
+            for (str_tmp = string; !reti; has_iter = 1, first_flag = 0) {
+                if (!hide_flag) printf("%s:", filename);
+                if (count_num && first_flag) printf("%d:", count_num);
+                str_tmp = print_grep_string(str_tmp, pattern);
+                reti = regexec(&regex, str_tmp, 0, NULL, 0);
+            }
+            if (has_iter) printf("%s\n", str_tmp);
+            res = EXIT_SUCCESS;
+        } else if (reti & invers_flag) {
+            if (!hide_flag) printf("%s:", filename);
+            (count_num) ? printf("%d:%s\n", count_num, string) : printf("%s\n", string);
+            res = EXIT_SUCCESS;
         }
-        if (has_iter) printf("%s\n", str_tmp);
-        res = EXIT_SUCCESS;
     }
     regfree(&regex);
     return res;

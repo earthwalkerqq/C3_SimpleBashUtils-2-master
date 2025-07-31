@@ -3,6 +3,7 @@
 
 #include "grep_count.h"
 #include "grep_file.h"
+#include "grep_hide.h"
 #include "grep_ignore.h"
 #include "grep_inverse.h"
 #include "grep_match.h"
@@ -11,6 +12,6 @@
 #include "grep_without_error.h"
 
 int processing(int argc, char *argv[]);
-int (*processing_option(char option))(char *, char *);
+int (*processing_option(char option))(char *, char *, char);
 
 #endif

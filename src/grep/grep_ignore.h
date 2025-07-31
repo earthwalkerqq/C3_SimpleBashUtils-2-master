@@ -3,6 +3,6 @@
 
 #include "../common/source.h"
 
-int grep_ignore_registre(char *pattern, char *filename);
+int grep_ignore_registre(char *pattern, char *filename, char most_arg_flag);
 
 #endif

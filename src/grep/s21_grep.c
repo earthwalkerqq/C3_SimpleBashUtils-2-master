@@ -8,9 +8,6 @@ int main(int argc, char *argv[]) {
 	[--context[=num]] [--directories=action] [--label] [--line-buffered]\n \
 	[--null] [pattern] [file ...]\n");
         return EXIT_FAILURE;
-    } else if (argc > 4) {
-        perror("PASSED A LARGE NUMBER OF ARGUMENTS");
-        return EXIT_FAILURE;
     }
     int error = processing(argc, argv);
     if (error) return EXIT_FAILURE;

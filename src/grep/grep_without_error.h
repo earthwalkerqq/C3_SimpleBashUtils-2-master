@@ -3,6 +3,6 @@
 
 #include "../common/source.h"
 
-int grep_without_error(char *pattern, char *filename);
+int grep_without_error(char *pattern, char *filename, char most_arg_flag);
 
 #endif

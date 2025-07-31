@@ -2,7 +2,7 @@
 
 #include "grep_template.h"
 
-int grep_ignore_registre(char *pattern, char *filename) {
+int grep_ignore_registre(char *pattern, char *filename, char most_arg_flag) {
     int error = EXIT_FAILURE;
     int len_new_pattern = 0;
     int size = SIZE_STRING;
@@ -27,7 +27,7 @@ int grep_ignore_registre(char *pattern, char *filename) {
             new_pattern[len_new_pattern++] = pattern[i];
     }
     new_pattern[len_new_pattern] = '\0';
-    error = grep_with_template(new_pattern, filename);
+    error = grep_with_template(new_pattern, filename, most_arg_flag);
     free(new_pattern);
     return error;
 }
