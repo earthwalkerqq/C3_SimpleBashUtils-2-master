@@ -35,10 +35,16 @@ char s21_is_alpfa(const char ch) {
 
 char *print_grep_string(char *string, const char *pattern) {
     char *start = s21_strstr(string, pattern);
-    int i;
-    for (i = 0; string + i != start; i++) putchar(string[i]);
-    printf("\033[31m%s\033[0m", pattern);
-    return string + i + s21_strlen(pattern);
+    char *res = NULL;
+    if (start == NULL) {
+        printf("%s\n", string);
+    } else {
+        int i;
+        for (i = 0; string + i != start; i++) putchar(string[i]);
+        printf("\033[31m%s\033[0m", pattern);
+        res = string + i + s21_strlen(pattern);
+    }
+    return res;
 }
 
 char *print_match_string(char *string, const char *pattern) {

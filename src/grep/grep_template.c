@@ -117,9 +117,9 @@ int grep_from_file(char *pattern, char *filename, char inverse_flag, char error_
                 }
                 str_tmp = (!match_flag) ? print_grep_string(str_tmp, pattern)
                                         : print_match_string(str_tmp, pattern);
-                reti = regexec(&regex, str_tmp, 0, NULL, 0);
+                reti = (str_tmp) ? regexec(&regex, str_tmp, 0, NULL, 0) : 1;
             }
-            if (has_iter && !match_flag) printf("%s\n", str_tmp);
+            if (has_iter && !match_flag && str_tmp) printf("%s\n", str_tmp);
         }
         free(line);
     }
