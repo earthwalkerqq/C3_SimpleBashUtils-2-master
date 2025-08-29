@@ -1,9 +1,10 @@
 #include "grep_match.h"
 
 #include "grep_template.h"
+#include "source.h"
 
 int match_string(char *pattern, char *filename, char most_arg_flag) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     if (filename == NULL) {
         error = grep_from_input(pattern, 0, 0, 1);
     } else if (most_arg_flag) {

@@ -1,7 +1,13 @@
 #include "grep_template.h"
 
+#include <regex.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "source.h"
+
 int grep_with_template(char *pattern, char *filename, char most_arg_flag) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     if (filename == NULL) {
         error = grep_from_input(pattern, 0, 0, 0);
     } else if (most_arg_flag) {
@@ -13,13 +19,13 @@ int grep_with_template(char *pattern, char *filename, char most_arg_flag) {
 }
 
 int grep_from_input(char *pattern, char inverse_flag, char num_flag, char match_flag) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     regex_t regex;
     int reti;
     reti = regcomp(&regex, pattern, REG_EXTENDED);
     if (reti) {
         perror("Failed to compile regular expression");
-        error = EXIT_FAILURE;
+        error = 1;
     } else {
         int count_num;
         for (count_num = 1;; count_num++) {
@@ -32,7 +38,7 @@ int grep_from_input(char *pattern, char inverse_flag, char num_flag, char match_
                     size *= 2;
                     if ((string = realloc(string, size * sizeof(char))) == NULL) {
                         perror("CAN'T MEMORY ALLOCATE");
-                        error = EXIT_FAILURE;
+                        error = 1;
                     }
                 }
                 string[i] = ch;
@@ -63,12 +69,12 @@ int grep_from_input(char *pattern, char inverse_flag, char num_flag, char match_
 
 int grep_from_file(char *pattern, char *filename, char inverse_flag, char error_flag, char num_flag,
                    char match_flag, char hide_flag) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     FILE *file = NULL;
     if ((file = fopen(filename, "r")) == NULL) {
-        if (error_flag) return EXIT_FAILURE;
+        if (error_flag) return 1;
         perror("CAN'T OPEN FILE");
-        return EXIT_FAILURE;
+        return 1;
     }
     char flag_eof = 0;
     regex_t regex;
@@ -76,7 +82,7 @@ int grep_from_file(char *pattern, char *filename, char inverse_flag, char error_
     reti = regcomp(&regex, pattern, REG_EXTENDED);
     if (reti) {
         perror("Failed to compile regular expression");
-        return EXIT_FAILURE;
+        return 1;
     }
     int count_num = 1;
     for (size_t size = (size_t)SIZE_STRING; !flag_eof && !error; size = (size_t)SIZE_STRING, count_num++) {
@@ -84,7 +90,7 @@ int grep_from_file(char *pattern, char *filename, char inverse_flag, char error_
         if (line == NULL) {
             fclose(file);
             regfree(&regex);
-            return EXIT_FAILURE;
+            return 1;
         }
         char ch;
         int i;
@@ -97,7 +103,7 @@ int grep_from_file(char *pattern, char *filename, char inverse_flag, char error_
                 size *= 2;
                 if ((line = realloc(line, size * sizeof(char))) == NULL) {
                     perror("CAN'T MEMORY ALLOCATE");
-                    error = EXIT_FAILURE;
+                    error = 1;
                     break;
                 }
             }

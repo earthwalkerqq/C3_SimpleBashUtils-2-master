@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <regex.h>
+
 #include "source.h"
 
 char *s21_strstr(char *string, const char *pattern) {

@@ -1,11 +1,9 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <regex.h>
-
 #define SIZE_STRING 100
+
+#include <stdio.h>
 
 char *s21_strstr(char *string, const char *pattern);
 size_t s21_strlen(const char *string);

@@ -1,9 +1,12 @@
 #include "grep_ignore.h"
 
+#include <stdlib.h>
+
 #include "grep_template.h"
+#include "source.h"
 
 int grep_ignore_registre(char *pattern, char *filename, char most_arg_flag) {
-    int error = EXIT_FAILURE;
+    int error = 1;
     int len_new_pattern = 0;
     int size = SIZE_STRING;
     char *new_pattern = (char *)malloc(size * sizeof(char));
@@ -14,7 +17,7 @@ int grep_ignore_registre(char *pattern, char *filename, char most_arg_flag) {
                 if ((new_pattern = realloc(new_pattern, size * sizeof(char))) == NULL) {
                     perror("CAN'T ALLOCATE OBJECT");
                     free(new_pattern);
-                    return EXIT_FAILURE;
+                    return 1;
                 }
             }
             int dif = (int)'a' - (int)'A';

@@ -1,7 +1,12 @@
 #include "grep_file.h"
 
+#include <regex.h>
+#include <stdlib.h>
+
+#include "source.h"
+
 int grep_with_file_pattern(char *pattern_file, char *filename, char most_arg_flag) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     if (filename == NULL) {
         error = grep_with_file_pattern_input(pattern_file);
     } else if (most_arg_flag) {
@@ -13,7 +18,7 @@ int grep_with_file_pattern(char *pattern_file, char *filename, char most_arg_fla
 }
 
 int grep_with_file_pattern_input(char *file_pattern) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     char **patterns = NULL;
     int len;
     patterns = read_pattern_from_file(file_pattern, &len, &error);
@@ -26,7 +31,7 @@ int grep_with_file_pattern_input(char *file_pattern) {
 }
 
 int grep_with_file_pattern_file(char *file_pattern, char *filename, char hide_flag) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     char **patterns = NULL;
     int len = 0;
     patterns = read_pattern_from_file(file_pattern, &len, &error);
@@ -39,7 +44,7 @@ int grep_with_file_pattern_file(char *file_pattern, char *filename, char hide_fl
 }
 
 int grep_input_many_patterns(char **patterns, int len, char inverse_flag) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     int size = SIZE_STRING;
     char *string = (char *)malloc(size * sizeof(char));
     for (;;) {
@@ -50,7 +55,7 @@ int grep_input_many_patterns(char **patterns, int len, char inverse_flag) {
                 size *= 2;
                 if ((string = realloc(string, size * sizeof(char))) == NULL) {
                     perror("CAN'T MEMORY ALLOCATE");
-                    error = EXIT_FAILURE;
+                    error = 1;
                 }
             }
             string[i] = ch;
@@ -67,12 +72,12 @@ int grep_input_many_patterns(char **patterns, int len, char inverse_flag) {
 
 int grep_file_many_patterns(char *filename, char **patterns, int len, char inverse_flag, char error_flag,
                             char num_flag, char hide_flag) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     FILE *file = NULL;
     if ((file = fopen(filename, "r")) == NULL) {
-        if (error_flag) return EXIT_FAILURE;
+        if (error_flag) return 1;
         perror("CAN'T OPEN FILE");
-        return EXIT_FAILURE;
+        return 1;
     }
     char flag_eof = 0;
     int count_num = 1;
@@ -80,7 +85,7 @@ int grep_file_many_patterns(char *filename, char **patterns, int len, char inver
         char ch;
         char *line = (char *)malloc(size * sizeof(char));
         if (line == NULL) {
-            return EXIT_FAILURE;
+            return 1;
         }
         int i;
         for (i = 0; (ch = getc(file)) != '\n' && !flag_eof; i++) {
@@ -90,7 +95,7 @@ int grep_file_many_patterns(char *filename, char **patterns, int len, char inver
                 size *= 2;
                 if ((line = (char *)realloc(line, size * sizeof(char))) == NULL) {
                     perror("CAN'T RELOCATE MEMORY");
-                    error = EXIT_FAILURE;
+                    error = 1;
                     break;
                 }
             }
@@ -114,7 +119,7 @@ int grep_file_many_patterns(char *filename, char **patterns, int len, char inver
 
 int find_pattern(char *string, char *pattern, char *filename, char invers_flag, int count_num,
                  char hide_flag) {
-    int res = EXIT_FAILURE;
+    int res = 1;
     if (string == NULL || pattern == NULL) return res;
     regex_t regex;
     int reti;
@@ -133,11 +138,11 @@ int find_pattern(char *string, char *pattern, char *filename, char invers_flag, 
                 reti = regexec(&regex, str_tmp, 0, NULL, 0);
             }
             if (has_iter) printf("%s\n", str_tmp);
-            res = EXIT_SUCCESS;
+            res = 0;
         } else if (reti & invers_flag) {
             if (!hide_flag) printf("%s:", filename);
             (count_num) ? printf("%d:%s\n", count_num, string) : printf("%s\n", string);
-            res = EXIT_SUCCESS;
+            res = 0;
         }
     }
     regfree(&regex);
@@ -148,7 +153,7 @@ char **read_pattern_from_file(char *filename, int *len, int *error) {
     FILE *file = NULL;
     if ((file = fopen(filename, "r")) == NULL) {
         perror("CAN'T OPEN FILE");
-        *error = EXIT_FAILURE;
+        *error = 1;
         return NULL;
     }
     char flag_eof = 0;
@@ -156,7 +161,7 @@ char **read_pattern_from_file(char *filename, int *len, int *error) {
     char **patterns_arr = (char **)malloc(size_arr * sizeof(char *));
     if (patterns_arr == NULL) {
         perror("CAN'T REALLOC MEMORY");
-        *error = EXIT_FAILURE;
+        *error = 1;
         return NULL;
     }
     for (*len = 0; !flag_eof && !(*error); (*len)++) {
@@ -165,7 +170,7 @@ char **read_pattern_from_file(char *filename, int *len, int *error) {
             patterns_arr = (char **)realloc(patterns_arr, size_arr * sizeof(char *));
             if (patterns_arr == NULL) {
                 perror("CAN'T REALLOC MEMORY");
-                *error = EXIT_FAILURE;
+                *error = 1;
                 break;
             }
         }
@@ -174,7 +179,7 @@ char **read_pattern_from_file(char *filename, int *len, int *error) {
         char *line = (char *)malloc(size * sizeof(char));
         if (line == NULL) {
             perror("CAN'T REALLOC MEMORY");
-            *error = EXIT_FAILURE;
+            *error = 1;
             break;
         }
         int j;
@@ -184,7 +189,7 @@ char **read_pattern_from_file(char *filename, int *len, int *error) {
                 line = (char *)realloc(line, size * sizeof(char));
                 if (line == NULL) {
                     perror("CAN'T REALLOC MEMORY");
-                    *error = EXIT_FAILURE;
+                    *error = 1;
                     break;
                 }
             }

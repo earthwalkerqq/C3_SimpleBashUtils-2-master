@@ -1,7 +1,19 @@
 #include "grep_flag.h"
 
+#include <stdio.h>
+
+#include "grep_count.h"
+#include "grep_file.h"
+#include "grep_hide.h"
+#include "grep_ignore.h"
+#include "grep_inverse.h"
+#include "grep_match.h"
+#include "grep_num.h"
+#include "grep_template.h"
+#include "grep_without_error.h"
+
 int processing(int argc, char *argv[]) {
-    int error = EXIT_SUCCESS;
+    int error = 0;
     int (*func)(char *, char *, char);
     if (argc == 2)
         error = grep_from_input(argv[1], 0, 0, 0);
@@ -9,7 +21,7 @@ int processing(int argc, char *argv[]) {
         func = processing_option(argv[1][1]);
         if (func == NULL) {
             perror("UNCORRECT OPTION");
-            error = EXIT_FAILURE;
+            error = 1;
         } else
             error = func(argv[2], NULL, 0);
     } else if (argc == 3)
@@ -18,14 +30,14 @@ int processing(int argc, char *argv[]) {
         func = processing_option(argv[1][1]);
         if (func == NULL) {
             perror("UNCORRECT OPTION");
-            error = EXIT_FAILURE;
+            error = 1;
         } else
             error = func(argv[2], argv[3], 0);
     } else if (*(argv[1]) == '-') {
         func = processing_option(argv[1][1]);
         if (func == NULL) {
             perror("UNCORRECT OPTION");
-            error = EXIT_FAILURE;
+            error = 1;
         } else {
             for (int i = 3; i < argc && !error; i++) {
                 error = func(argv[2], argv[i], 1);

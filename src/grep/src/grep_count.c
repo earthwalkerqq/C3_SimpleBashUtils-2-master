@@ -1,5 +1,10 @@
 #include "grep_count.h"
 
+#include <regex.h>
+#include <stdlib.h>
+
+#include "source.h"
+
 int grep_count_line(char *pattern, char *filename, char most_arg_flag) {
     int error = EXIT_SUCCESS;
     if (filename == NULL) {

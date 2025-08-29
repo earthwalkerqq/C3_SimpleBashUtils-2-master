@@ -1,5 +1,8 @@
 #include "output_file.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 int output_file(FILE *file, const char *option) {
     int res = EXIT_SUCCESS;
     char ch;

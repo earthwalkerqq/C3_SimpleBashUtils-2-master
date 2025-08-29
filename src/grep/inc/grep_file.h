@@ -1,8 +1,6 @@
 #ifndef GREP_FILE_H
 #define GREP_FILE_H
 
-#include "../common/source.h"
-
 #define COUNT_PATTERNS 5
 
 int grep_with_file_pattern(char *pattern_file, char *filename, char most_arg_flag);

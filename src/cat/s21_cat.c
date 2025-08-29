@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "output_file.h"
 
 int output_file(FILE *file, const char *option);

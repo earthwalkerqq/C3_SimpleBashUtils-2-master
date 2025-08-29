@@ -57,6 +57,14 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-    "output_file.h": "c"
-  }
+    ".babelrc": "jsonc",
+    ".eslintrc": "jsonc",
+    "*.pyi": "python",
+    "*.bats": "shellscript",
+    "output_file.h": "c",
+    "ratio": "cpp",
+    "grep_template.h": "c",
+    "grep_flag.h": "c",
+    "grep_count.h": "c"
+}
 }
